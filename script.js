@@ -130,10 +130,20 @@
                 els.bgLight.classList.add('hidden');
                 els.themeIcon.setAttribute('data-lucide', 'sun');
                 
+                // Body Styling
+                document.body.classList.remove('bg-slate-50/50', 'text-slate-800', 'selection:bg-violet-100', 'selection:text-violet-700');
+                document.body.classList.add('bg-black', 'text-slate-100', 'selection:bg-violet-500', 'selection:text-white');
+
                 // Header styling
                 els.header.classList.replace('bg-white/70', 'bg-black/80');
                 els.header.classList.replace('border-slate-200/60', 'border-neutral-900');
                 els.brandText.classList.replace('text-slate-900', 'text-white');
+                
+                // File Badge & Buttons
+                els.fileBadge.classList.remove('bg-slate-100/80', 'border-slate-200', 'text-slate-600');
+                els.fileBadge.classList.add('bg-neutral-900', 'border-neutral-800', 'text-slate-300');
+                els.btnDownload.classList.remove('hover:bg-slate-100', 'text-emerald-600');
+                els.btnDownload.classList.add('hover:bg-neutral-800', 'text-emerald-400');
                 
                 // Upload styling
                 els.dropZone.className = "group relative flex flex-col items-center justify-center w-full max-w-xl h-64 rounded-3xl cursor-pointer border-2 border-dashed transition-all duration-300 shadow-sm overflow-hidden bg-neutral-900/40 border-neutral-800 hover:border-violet-500 hover:bg-neutral-900/80";
@@ -152,10 +162,20 @@
                 els.bgLight.classList.remove('hidden');
                 els.themeIcon.setAttribute('data-lucide', 'moon');
                 
+                // Body Styling
+                document.body.classList.remove('bg-black', 'text-slate-100', 'selection:bg-violet-500', 'selection:text-white');
+                document.body.classList.add('bg-slate-50/50', 'text-slate-800', 'selection:bg-violet-100', 'selection:text-violet-700');
+                
                 // Header styling
                 els.header.classList.replace('bg-black/80', 'bg-white/70');
                 els.header.classList.replace('border-neutral-900', 'border-slate-200/60');
                 els.brandText.classList.replace('text-white', 'text-slate-900');
+
+                // File Badge & Buttons
+                els.fileBadge.classList.remove('bg-neutral-900', 'border-neutral-800', 'text-slate-300');
+                els.fileBadge.classList.add('bg-slate-100/80', 'border-slate-200', 'text-slate-600');
+                els.btnDownload.classList.remove('hover:bg-neutral-800', 'text-emerald-400');
+                els.btnDownload.classList.add('hover:bg-slate-100', 'text-emerald-600');
 
                 // Upload styling
                 els.dropZone.className = "group relative flex flex-col items-center justify-center w-full max-w-xl h-64 rounded-3xl cursor-pointer border-2 border-dashed transition-all duration-300 shadow-sm overflow-hidden bg-white/60 border-slate-300 hover:border-violet-500 hover:bg-violet-50/30";
@@ -718,3 +738,4 @@
             link.click();
             document.body.removeChild(link);
         }
+

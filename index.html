@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataLens - EDA Dashboard</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js for Visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+  
+   
+    
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="font-sans antialiased transition-colors duration-500 bg-black text-slate-100 selection:bg-violet-500 selection:text-white">
+
+    <!-- Backgrounds -->
+    <div id="bg-light" class="fixed inset-0 -z-10 bg-white [background:radial-gradient(125%_125%_at_50%_10%,#fff_40%,#63e_100%)] opacity-5 hidden"></div>
+    <div id="bg-dark" class="fixed inset-0 -z-10 bg-black [background:radial-gradient(circle_at_50%_0%,#1e1b4b_0%,#000_60%)] opacity-20"></div>
+
+    <!-- Header -->
+    <header id="header" class="sticky top-0 z-50 w-full backdrop-blur-md border-b border-neutral-900 bg-black/80 transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-violet-900/20">
+                    <i data-lucide="activity" width="20"></i>
+                </div>
+                <span class="font-bold text-xl tracking-tight text-white" id="brand-text">
+                    DataLens <span class="text-violet-500 text-xs uppercase tracking-widest ml-1 font-extrabold opacity-60"></span>
+                </span>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <!-- File Info (Hidden initially) -->
+                <div id="file-badge" class="hidden items-center gap-2 px-3 py-1.5 rounded-full border bg-neutral-900 border-neutral-800 text-slate-300 transition-colors">
+                    <i data-lucide="file-text" width="14" class="text-slate-400"></i>
+                    <span id="filename-display" class="text-sm font-medium max-w-[150px] truncate"></span>
+                </div>
+                
+                <!-- Dark Mode Toggle -->
+                <button id="theme-toggle" class="p-2 rounded-lg transition-colors hover:bg-neutral-800 text-yellow-400" title="Toggle Theme">
+                    <i data-lucide="sun" width="20" id="theme-icon"></i>
+                </button>
+                
+                <!-- Action Buttons (Hidden initially) -->
+                <div id="action-buttons" class="hidden flex items-center gap-2">
+                    <button id="btn-download" class="p-2 rounded-lg transition-colors hover:bg-neutral-800 text-emerald-400 hidden sm:block" title="Export Analysis JSON">
+                        <i data-lucide="download" width="20"></i>
+                    </button>
+                    <button id="btn-reset" class="text-sm font-semibold text-slate-500 hover:text-red-500 transition-colors px-2">Reset</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 py-10 min-h-[calc(100vh-64px)]">
+        
+        <!-- View: Upload -->
+        <div id="view-upload" class="flex flex-col items-center justify-center min-h-[70vh] animate-in fade-in zoom-in-95 duration-500">
+            <div class="text-center mb-10 max-w-2xl">
+                <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 text-white" id="hero-title">
+                    Unlock insights <span class="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-indigo-600">instantly.</span>
+                </h1>
+                <p class="text-lg text-slate-400" id="hero-subtitle">
+                    Secure, browser-based EDA. Drag & drop to reveal distributions, correlations, and trends.
+                </p>
+            </div>
+            
+            <label class="group relative flex flex-col items-center justify-center w-full max-w-xl h-64 rounded-3xl cursor-pointer border-2 border-dashed transition-all duration-300 shadow-sm overflow-hidden bg-neutral-900/40 border-neutral-800 hover:border-violet-500 hover:bg-neutral-900/80" id="drop-zone">
+                <div class="flex flex-col items-center justify-center pt-5 pb-6 z-10">
+                    <div class="w-16 h-16 mb-4 rounded-2xl flex items-center justify-center transition-transform shadow-sm group-hover:scale-110 bg-neutral-800 text-violet-400" id="upload-icon-bg">
+                        <i data-lucide="upload" width="28" stroke-width="2.5"></i>
+                    </div>
+                    <p class="mb-2 text-lg font-semibold group-hover:text-violet-500 transition-colors text-slate-200" id="upload-text">
+                        Drop CSV here or click to upload
+                    </p>
+                    <p class="text-sm text-slate-500" id="upload-subtext">Standard CSV files</p>
+                </div>
+                <input type="file" id="file-input" accept=".csv" class="hidden" />
+            </label>
+            <div id="error-message" class="hidden mt-6 p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl flex items-center gap-3 shadow-sm">
+                <i data-lucide="alert-circle" width="18"></i> <span id="error-text"></span>
+            </div>
+        </div>
+
+        <!-- View: Loading -->
+        <div id="view-loading" class="hidden flex flex-col items-center justify-center min-h-[50vh] space-y-4">
+            <i data-lucide="loader-2" width="48" class="text-violet-600 animate-spin"></i>
+            <p class="font-medium text-slate-400" id="loading-text">Crunching the numbers...</p>
+        </div>
+
+        <!-- View: Dashboard -->
+        <div id="view-dashboard" class="hidden space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
+            
+            <!-- Tabs -->
+            <div class="flex justify-center">
+                <div class="flex p-1.5 rounded-2xl border shadow-inner bg-neutral-900 border-neutral-800" id="tab-container">
+                    <button class="tab-btn flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 bg-neutral-800 text-white shadow-sm" data-tab="overview">
+                        <i data-lucide="pie-chart" width="16"></i> Overview
+                    </button>
+                    <button class="tab-btn flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 text-slate-500 hover:text-slate-300 hover:bg-white/5" data-tab="visuals">
+                        <i data-lucide="bar-chart-2" width="16"></i> Visualizations
+                    </button>
+                    <button class="tab-btn flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 text-slate-500 hover:text-slate-300 hover:bg-white/5" data-tab="data">
+                        <i data-lucide="table" width="16"></i> Raw Data
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content: Overview -->
+            <div id="tab-content-overview" class="space-y-8">
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="stats-grid">
+                    <!-- Injected via JS -->
+                </div>
+                <!-- Column Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="columns-grid">
+                    <!-- Injected via JS -->
+                </div>
+            </div>
+
+            <!-- Content: Visuals -->
+            <div id="tab-content-visuals" class="hidden space-y-8">
+                
+                <!-- Scatter Plot Section -->
+                <div id="scatter-section" class="hidden rounded-2xl border transition-all duration-300 p-6 bg-black border-neutral-800 shadow-[0_0_15px_-3px_rgba(255,255,255,0.03)] text-slate-200">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <i data-lucide="scatter-chart" width="18" class="text-violet-500"></i>
+                                <h3 class="font-bold text-lg text-slate-200">Variable Relationship Explorer</h3>
+                            </div>
+                            <p class="text-sm text-slate-500">Select two numeric variables to visualize their correlation.</p>
+                        </div>
+                        <div class="flex flex-wrap gap-4">
+                            <select id="scatter-x" class="text-sm rounded-lg p-2.5 outline-none border bg-neutral-900 border-neutral-700 text-slate-200 focus:border-violet-500"></select>
+                            <span class="self-center text-slate-400 font-bold">vs</span>
+                            <select id="scatter-y" class="text-sm rounded-lg p-2.5 outline-none border bg-neutral-900 border-neutral-700 text-slate-200 focus:border-violet-500"></select>
+                        </div>
+                    </div>
+                    <div class="relative h-[400px] w-full">
+                        <canvas id="scatterChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Correlation Matrix -->
+                <div id="correlation-section" class="hidden rounded-2xl border transition-all duration-300 p-6 bg-black border-neutral-800 shadow-[0_0_15px_-3px_rgba(255,255,255,0.03)] text-slate-200">
+                    <div class="flex items-center gap-2 mb-6">
+                        <i data-lucide="grid" width="18" class="text-blue-500"></i>
+                        <h3 class="font-bold text-lg text-slate-200">Correlation Matrix (First 8 Numeric Columns)</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs text-center border-collapse" id="correlation-table">
+                            <!-- Injected via JS -->
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Distribution Charts Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8" id="charts-grid">
+                    <!-- Injected via JS -->
+                </div>
+            </div>
+
+            <!-- Content: Data -->
+            <div id="tab-content-data" class="hidden">
+                <div class="rounded-2xl border transition-all duration-300 overflow-hidden bg-black border-neutral-800 shadow-[0_0_15px_-3px_rgba(255,255,255,0.03)] text-slate-200">
+                    <div class="overflow-x-auto max-h-[70vh]">
+                        <table class="w-full text-sm text-left text-slate-400" id="raw-data-table">
+                            <thead class="text-xs uppercase sticky top-0 backdrop-blur-sm z-10 shadow-sm bg-neutral-900/90 text-slate-400">
+                                <tr id="table-head-row"></tr>
+                            </thead>
+                            <tbody class="divide-y divide-neutral-800" id="table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+<script src="script.js"></script>
+</body>
+</body>
+</html>

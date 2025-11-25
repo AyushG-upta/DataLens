@@ -1,0 +1,13 @@
+/* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #525252; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #737373; }
+        .dark ::-webkit-scrollbar-thumb { background: #404040; }
+        .dark ::-webkit-scrollbar-thumb:hover { background: #525252; }
+        
+        /* Glassmorphism utilities */
+        .glass-panel {
+            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(12px);
+        }

@@ -36,7 +36,7 @@ Responsive Layout: Fully functional on desktops, tablets, and mobile devices.
 
 Client-Side Only: All data processing happens locally within the browser using JavaScript. No data is ever sent to an external server.
 
-🛠️ Technology Stack
+>Technology Stack
 
 HTML5 - Semantic structure.
 
@@ -115,6 +115,6 @@ Push to the branch (git push origin feature/AmazingFeature).
 
 Open a Pull Request.
 
-📄 License
+> License
 
 This project is open source and available under the MIT License.
